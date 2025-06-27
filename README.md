@@ -7,7 +7,6 @@ It is based on a client/server architecture, where server is the machine control
 Switching between different clients is done by a configurable keyboard shortcut.
 
 ## Features
-- TLS encrypted by default, backed by [rustls](https://github.com/rustls/rustls)
 - Display server agnostic (in fact, it doesn't require a display server at all)
 - Low overhead
 
@@ -20,28 +19,24 @@ Switching between different clients is done by a configurable keyboard shortcut.
 If you can, it is strongly recommended to use the [AUR package](https://aur.archlinux.org/packages/rkvm) to install rkvm.  
 Note that the master branch can contain untested and breaking changes - for regular use, it is recommended to pick the latest [release](https://github.com/htrefil/rkvm/releases) instead.
 
-```
-$ cargo build --release
-# cp target/release/rkvm-client /usr/bin/
-# cp target/release/rkvm-server /usr/bin/
-# cp target/release/rkvm-certificate-gen /usr/bin/ # Optional
-# cp systemd/rkvm-client.service /usr/lib/systemd/system/
-# cp systemd/rkvm-server.service /usr/lib/systemd/system/
+```sh
+cargo build --release
+cp target/release/rkvm-client /usr/bin/
+cp target/release/rkvm-server /usr/bin/
+cp systemd/rkvm-client.service /usr/lib/systemd/system/
+cp systemd/rkvm-server.service /usr/lib/systemd/system/
 ```
 
 ## Configuration
 After installation:
-- Generate a certificate and private key using the `rkvm-certificate-gen` tool or provide your own from other sources.
-- For server, place both the certificate and private key in `/etc/rkvm/certificate.pem` and `/etc/rkvm/key.pem` respectively.
-- For client, place the certificate to `/etc/rkvm/certificate.pem`.
 - Create a config if you haven't done so already.  
   Server:  
-  ```
-  # cp /usr/share/rkvm/examples/server.toml /etc/rkvm/server.toml
+  ```sh
+  cp /usr/share/rkvm/examples/server.toml /etc/rkvm/server.toml
   ```
   Client:
-  ```
-  # cp /usr/share/rkvm/examples/client.toml /etc/rkvm/client.toml
+  ```sh
+  cp /usr/share/rkvm/examples/client.toml /etc/rkvm/client.toml
   ```
   Do not edit the example configs, they will be overwritten by your package manager.
 - **Change the password** and optionally reconfigure the network listen address and key bindings for switching clients  
@@ -49,20 +44,20 @@ After installation:
   being unable to user your keyboard and/or mouse because your display server is not properly configured to receive input from rkvm.
 
   Run the following command to start rkvm-server for 15 seconds to test that your keyboard, mouse, etc. works properly:
-  ```
-  # rkvm-server /etc/rkvm/server.toml --shutdown-after 15
+  ```sh
+  rkvm-server /etc/rkvm/server.toml --shutdown-after 15
   ```
 
 - Enable and start the systemd service.  
   Server:
-  ```
-  # systemctl enable rkvm-server
-  # systemctl start rkvm-server
+  ```sh
+  systemctl enable rkvm-server
+  systemctl start rkvm-server
   ```
   Client:
-  ```
-  # systemctl enable rkvm-client
-  # systemctl start rkvm-client
+  ```sh
+  systemctl enable rkvm-client
+  systemctl start rkvm-client
   ```
 
 ## Why rkvm and not Barrier/Synergy?
@@ -80,7 +75,6 @@ Regardless, if you want a working and stable solution for crossplatform keyboard
 - `rkvm-client` - client application code
 - `rkvm-input` - handles reading from and writing to input devices
 - `rkvm-net` - network protocol encoding and decoding
-- `rkvm-certificate-gen` - certificate generation tool
 
 [Bincode](https://github.com/servo/bincode) is used for encoding of messages on the network and [Tokio](https://tokio.rs) as an asynchronous runtime.
 

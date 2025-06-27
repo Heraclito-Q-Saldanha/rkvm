@@ -25,9 +25,6 @@ pub const READ_TIMEOUT: Duration = Duration::from_millis(500);
 // Message write timeout (applies to all messages).
 pub const WRITE_TIMEOUT: Duration = Duration::from_millis(500);
 
-// TLS negotiation timeout.
-pub const TLS_TIMEOUT: Duration = Duration::from_millis(500);
-
 #[derive(Deserialize, Serialize, Debug)]
 pub enum Update {
     CreateDevice {

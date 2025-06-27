@@ -11,8 +11,6 @@ use thiserror::Error;
 use tokio::io::{AsyncWriteExt, BufStream};
 use tokio::net::TcpStream;
 use tokio::time;
-use tokio_rustls::rustls::ServerName;
-use tokio_rustls::TlsConnector;
 
 #[derive(Error, Debug)]
 pub enum Error {
@@ -26,30 +24,11 @@ pub enum Error {
     Auth,
 }
 
-pub async fn run(
-    hostname: &ServerName,
-    port: u16,
-    connector: TlsConnector,
-    password: &str,
-) -> Result<(), Error> {
+pub async fn run(address: &str, password: &str) -> Result<(), Error> {
     // Intentionally don't impose any timeout for TCP connect.
-    let stream = match hostname {
-        ServerName::DnsName(name) => TcpStream::connect(&(name.as_ref(), port)).await,
-        ServerName::IpAddress(address) => TcpStream::connect(&(*address, port)).await,
-        _ => unimplemented!("Unhandled rustls ServerName variant: {:?}", hostname),
-    }
-    .map_err(Error::Network)?;
+    let stream = TcpStream::connect(address).await.map_err(Error::Network)?;
 
     tracing::info!("Connected to server");
-
-    let stream = rkvm_net::timeout(
-        rkvm_net::TLS_TIMEOUT,
-        connector.connect(hostname.clone(), stream),
-    )
-    .await
-    .map_err(Error::Network)?;
-
-    tracing::info!("TLS connected");
 
     let mut stream = BufStream::with_capacity(1024, 1024, stream);
 

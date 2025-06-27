@@ -20,7 +20,6 @@ use tokio::net::{TcpListener, TcpStream};
 use tokio::sync::mpsc::error::TrySendError;
 use tokio::sync::mpsc::{self, Receiver, Sender};
 use tokio::time;
-use tokio_rustls::TlsAcceptor;
 use tracing::Instrument;
 
 #[derive(Error, Debug)]
@@ -35,7 +34,6 @@ pub enum Error {
 
 pub async fn run(
     listen: SocketAddr,
-    acceptor: TlsAcceptor,
     password: &str,
     switch_keys: &HashSet<Key>,
     propagate_switch_keys: bool,
@@ -59,7 +57,6 @@ pub async fn run(
         tokio::select! {
             result = listener.accept() => {
                 let (stream, addr) = result.map_err(Error::Network)?;
-                let acceptor = acceptor.clone();
                 let password = password.to_owned();
 
                 // Remove dead clients.
@@ -92,7 +89,7 @@ pub async fn run(
                     async move {
                         tracing::info!("Connected");
 
-                        match client(init_updates, receiver, stream, acceptor, &password).await {
+                        match client(init_updates, receiver, stream, &password).await {
                             Ok(()) => tracing::info!("Disconnected"),
                             Err(err) => tracing::error!("Disconnected: {}", err),
                         }
@@ -306,11 +303,9 @@ async fn client(
     mut init_updates: VecDeque<Update>,
     mut receiver: Receiver<Update>,
     stream: TcpStream,
-    acceptor: TlsAcceptor,
     password: &str,
 ) -> Result<(), ClientError> {
-    let stream = rkvm_net::timeout(rkvm_net::TLS_TIMEOUT, acceptor.accept(stream)).await?;
-    tracing::info!("TLS connected");
+    tracing::info!("connected");
 
     let mut stream = BufStream::with_capacity(1024, 1024, stream);
 

@@ -1,6 +1,5 @@
 mod config;
 mod server;
-mod tls;
 
 use clap::Parser;
 use config::Config;
@@ -52,14 +51,6 @@ async fn main() -> ExitCode {
         }
     };
 
-    let acceptor = match tls::configure(&config.certificate, &config.key).await {
-        Ok(acceptor) => acceptor,
-        Err(err) => {
-            tracing::error!("Error configuring TLS: {}", err);
-            return ExitCode::FAILURE;
-        }
-    };
-
     let shutdown = async {
         match args.shutdown_after {
             Some(shutdown_after) => time::sleep(Duration::from_secs(shutdown_after)).await,
@@ -71,7 +62,7 @@ async fn main() -> ExitCode {
     let propagate_switch_keys = config.propagate_switch_keys.unwrap_or(true);
 
     tokio::select! {
-        result = server::run(config.listen, acceptor, &config.password, &switch_keys, propagate_switch_keys) => {
+        result = server::run(config.listen, &config.password, &switch_keys, propagate_switch_keys) => {
             if let Err(err) = result {
                 tracing::error!("Error: {}", err);
                 return ExitCode::FAILURE;

@@ -1,6 +1,5 @@
 mod client;
 mod config;
-mod tls;
 
 use clap::Parser;
 use config::Config;
@@ -48,16 +47,8 @@ async fn main() -> ExitCode {
         }
     };
 
-    let connector = match tls::configure(&config.certificate).await {
-        Ok(connector) => connector,
-        Err(err) => {
-            tracing::error!("Error configuring TLS: {}", err);
-            return ExitCode::FAILURE;
-        }
-    };
-
     tokio::select! {
-        result = client::run(&config.server.hostname, config.server.port, connector, &config.password) => {
+        result = client::run(&config.address, &config.password) => {
             if let Err(err) = result {
                 tracing::error!("Error: {}", err);
                 return ExitCode::FAILURE;

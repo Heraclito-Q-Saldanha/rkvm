@@ -1,5 +1,4 @@
-server = "myserver.local:5258"
-certificate = "/etc/rkvm/certificate.pem"
+address = "localhost:5258"
 
 # This is to prevent malicious clients from connecting to the server.
 # Make sure this matches your server's config.

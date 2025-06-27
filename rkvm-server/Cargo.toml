@@ -8,13 +8,19 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tokio = { version = "1.0.1", features = ["macros", "time", "fs", "net", "signal", "rt-multi-thread", "sync"] }
+tokio = { version = "1.0.1", features = [
+    "macros",
+    "time",
+    "fs",
+    "net",
+    "signal",
+    "rt-multi-thread",
+    "sync",
+] }
 serde = { version = "1.0.117", features = ["derive"] }
 toml = "0.5.7"
 env_logger = "0.8.1"
 clap = { version = "4.2.2", features = ["derive"] }
-tokio-rustls = "0.24.0"
-rustls-pemfile = "1.0.2"
 thiserror = "1.0.40"
 slab = "0.4.8"
 rand = "0.8.5"
